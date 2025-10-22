@@ -1,0 +1,166 @@
+{
+    "dsociety-least-harmful":
+    {   
+        "layers":
+        [
+            {
+                "order": "1",
+                "name": "communication-tech",
+                "notes": "hardware"
+            },
+            {
+                "order": "2",
+                "name": "internet",
+                "notes": "TCP/IP"
+            },
+            {
+                "order": "3",
+                "name": "trust-primitive",
+                "notes": "SSI, Blockchain"
+            },
+            {
+                "order": "4",
+                "name": "foundation",
+                "notes": "Domain Neutral; LLMs, Cloud Services"
+            },
+            {
+                "order": "5",
+                "name": "application",
+                "notes": "Domain Specific; Web Apps, dApps"
+            },
+            {
+                "order": "6",
+                "name": "organisation-entity",
+                "notes": "Communities"
+            },
+            {
+                "order": "7",
+                "name": "individual-entity",
+                "notes": "Community Members, People, Cognitive-Assistants etc"
+            },
+            {
+                "order": "8",
+                "name": "outcome",
+                "notes": ""
+            }
+        ],
+        "spaces":
+        [
+            {                
+                "name": "physical",
+                "description": "Interfaces with the real physical space"
+            },
+            {
+                "name": "virtual",
+                "description": "Interfaces with the virtual space; information technology etc"
+            }
+        ],
+        "projects":
+        [
+            {
+                "name": "selfdriven",
+                "title": "selfdriven",
+                "description": "Powering Learning Communities with a Framework for Inclusive Learning",
+                "categories": [ "Education"],
+                "url": "https://slfdrvn.io",
+                "layer": "application",
+                "space": "physical",
+                "energy":
+                {
+                    "sources":
+                    [
+                        {
+                            "name": "https://slfdrvn.io/energy/#funding"
+                        }
+                    ]
+                }
+            },
+            {
+                "name": "world-mobile",
+                "title": "WorldMobile",
+                "description": "Connecting the Unconnected",
+                "categories": [ "Telecommunications"],
+                "url": "https://worldmobile.io",
+                "layer": "communication-tech",
+                "space": "physical"
+            },
+            {
+                "name": "cardano",
+                "title": "Cardano",
+                "description": "Making The World Work Better For All",
+                "categories": [ "Blockchain"],
+                "url": "https://cardano.org",
+                "layer": "trust-primitive",
+                "space": "physical"
+            },
+            {
+                "name": "empowa",
+                "title": "Empowa",
+                "description": "Unlocking Africa's Affordable, Climate-Smart Housing Opportunity",
+                "categories": [ "Application"],
+                "url": "https://cardano.org",
+                "layer": "application",
+                "space": "physical"
+            },
+            {
+                "name": "commonlands",
+                "title": "Commonlands",
+                "description": "A New Trust System. Built by neighbors. Backed by land",
+                "categories": [ "Application"],
+                "url": "https://www.commonlands.org",
+                "layer": "application",
+                "space": "physical"
+            },
+            {
+                "name": "landano",
+                "title": "Landano",
+                "description": "Property Rights Secured, For Everyone",
+                "categories": [ "Application"],
+                "url": "https://www.landano.io",
+                "layer": "application",
+                "space": "physical"
+            },
+            {
+                "name": "orcfax",
+                "title": "Orcfax",
+                "description": "The trustworthy link between real-world facts and trustless Cardano smart contracts",
+                "categories": [ "Application"],
+                "url": "https://www.orcfax.io",
+                "layer": "application",
+                "space": "physical"
+            },
+             {
+                "name": "gokey",
+                "title": "GoKey",
+                "description": "GoKey is on a mission to help everyday people access the wealth building benefits of property ownership",
+                "categories": [ "Application"],
+                "url": "https://gokey.network",
+                "layer": "application",
+                "space": "physical"
+            },
+            {
+                "name": "directed",
+                "title": "DirectEd",
+                "description": "For a world in which any person can realise their full potential, regardless of their draw in the lottery of life",
+                "categories": [ "Application"],
+                "url": "https://directed.dev",
+                "layer": "application",
+                "space": "physical"
+            },
+            {
+                "name": "adosia",
+                "title": "Adosia",
+                "description": "Evolution in economic opportunity; Create, Deploy & Earn",
+                "categories": [ "Application"],
+                "url": "https://adosia.com",
+                "layer": "application",
+                "space": "physical"
+            }
+           
+        ]
+    }
+}
+
+
+
+

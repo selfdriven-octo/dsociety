@@ -1,0 +1,18 @@
+title: "selfdriven Support"
+description: "selfdriven Support"
+baseurl: ""
+url: "https://www.selfdriven.support"
+defaults:
+  - scope:
+      path: "pages"
+      type: "pages"
+    values:
+      layout: default
+plugins:
+  - jekyll-feed
+  - jekyll-seo-tag
+collections:
+  guides:
+    output: true
+    permalink: /guides/:path/
+    layout: guides

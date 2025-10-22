@@ -1,0 +1,373 @@
+import { EntityOS } from '/site/2152/entityos.module.class-1.0.0.js';
+
+const eos = new EntityOS();
+
+// dSOCIETY | LEARN-BY-EXAMPLE
+
+// Getting a "foot-hold" on twith Self-Sovereign Identity (SSI) tech by creating a DID.
+
+// Code is free to use.
+// It is only provided as to aid learning .
+
+eos.add(
+[
+	{
+		name: 'learn-ssi-init',
+		code: function ()
+		{
+			console.log('We have an opportunity to descentralise & rehumanise our society.');
+			console.log('https://dsociety.io\n\n')
+		}
+	},
+	{
+		name: 'learn-ssi-create-did',
+		code: function ()
+		{
+			//Examples:
+			//https://github.com/IAMXID/did-spec-registries/tree/main/methods
+
+			console.log('Step 1 | Create DID.');
+
+			const cryptoCurve = eos.get(
+			{
+				scope: 'learn-ssi-create-did',
+				context: 'curve',
+				valueDefault: 'secp256k1'
+			});
+
+			console.log(cryptoCurve + ' Key Pair:')
+
+			const ec = new elliptic.ec(cryptoCurve);
+			const key = ec.genKeyPair();
+
+			const publicKey = key.getPublic('hex');
+			const privateKey = key.getPrivate('hex');
+
+			console.log('Public Key (Hex):', publicKey);
+			console.log('Private Key (Hex):', privateKey);
+
+			eos.set(
+			{
+				scope: 'learn-ssi',
+				context: 'public-key-hex',
+				value: publicKey
+			});
+
+			const publicKeyBase58 = entityos._util.controller.invoke('learn-ssi-hex-to-base58', publicKey);
+
+			console.log('Public Key (Base58):', publicKeyBase58);
+
+			eos.set(
+			{
+				scope: 'learn-ssi',
+				context: 'public-key-base58',
+				value: publicKeyBase58
+			});
+
+			eos.set(
+			{
+				scope: 'learn-ssi',
+				context: 'private-key-hex',
+				value: privateKey
+			});
+
+			var learnSSIView = eos.view();
+
+			learnSSIView.add(
+			[
+				'<div style="background-color:rgba(0,0,0,0.7); border-radius: 6px; padding:16px;" class="w-md-100 mt-2 mb-4">',
+					'<h4 class="fw-bold mb-3 mt-1">Step 1 | Create ', cryptoCurve, ' Keys</h4>',
+					'<div class="" style="color:#e8d5cf;">Public Key (Hex)</div>',
+					'<div style="font-family: PT Mono, monospace; font-size: 1rem; color:#baadab; word-break: break-all;" class="mb-1">',
+						publicKey,
+					'</div>',
+					'<div class="" style="color:#e8d5cf;">Public Key (Base58)</div>',
+					'<div style="font-family: PT Mono, monospace; font-size: 1rem; color:#baadab; word-break: break-all;" class="mb-1">',
+						publicKeyBase58,
+					'</div>',
+					'<div class="mt-4" style="color:#e8d5cf;">Private Key (Hex)</div>',
+					'<div style="font-family: PT Mono, monospace; font-size: 1rem; color:#baadab; word-break: break-all;" class="mb-1">',
+						privateKey,
+					'</div>',
+                '</div>'
+			]);
+
+            console.log('Step 2 | Create hash the public key as DID - HEX|64.');
+
+            let publicKeyHash = entityos._util.protect.hash({data: publicKey}).dataHashed;
+
+			console.log('Public Key Hash:', publicKeyHash);
+			
+			eos.set(
+			{
+				scope: 'learn-ssi',
+				context: 'public-key-hex-hash',
+				value: publicKeyHash
+			});
+
+            console.log('Public Key Hash (SHA256):', publicKeyHash);
+
+            learnSSIView.add(
+			[
+				'<div style="background-color:rgba(0,0,0,0.7); border-radius: 6px; padding:16px;" class="w-md-100 mt-4 mb-4">',
+					'<h4 class="fw-bold mb-3 mt-1">Step 2 | Hash Public Key Using SHA256</h4>',
+					'<div class="" style="color:#e8d5cf;">Public Key Hash</div>',
+					'<div style="font-family: PT Mono, monospace; font-size: 1rem; color:#baadab; word-break: break-all;" class="mb-1">',
+						publicKeyHash,
+					'</div>',
+                '</div>'
+			]);
+
+			const did = 'did:dsociety:' + publicKeyHash;
+
+            console.log('DID:', did);
+
+			eos.set(
+			{
+				scope: 'learn-ssi',
+				context: 'did',
+				value: did
+			});
+
+			const didDocument = eos.invoke('learn-ssi-create-did-doc');
+			const didDocumentFormatted = JSON.stringify(didDocument, null, 2)
+
+            learnSSIView.add(
+			[
+				'<div style="background-color:rgba(0,0,0,0.7); border-radius: 6px; padding:16px;" class="w-md-100 mt-4 mb-4">',
+					'<h4 class="fw-bold mb-3 mt-1">Step 3 | DID based on dSociety SSI Method Specification</h4>',
+					'<div class="" style="color:#e8d5cf;">Decentralised ID (DID) | Public Key (Hex) Hash</div>',
+					'<div style="font-family: PT Mono, monospace; font-size: 1rem; color:#baadab; word-break: break-all;" class="mb-1">',
+						did,
+					'</div>',
+					'<div class="mt-2" style="color:#e8d5cf;">DID Document</div>',
+					'<div style="font-family: PT Mono, monospace; font-size: 1rem; color:#baadab; word-break: break-all;" class="mb-1">',
+						'<pre>',
+						didDocumentFormatted,
+						'</pre>',
+					'</div>',
+                '</div>'
+			]);
+
+            // Create proof - hash the message and then sign/encrypt witn secp
+
+            learnSSIView.add(
+			[
+				'<div style="background-color:rgba(0,0,0,0.7); border-radius: 6px; padding:16px;" class="w-md-100 mt-2 mb-4">',
+					'<h4 class="fw-bold mb-3 mt-1">Step 4 | Hash & Sign Data (e.g. Verifiable Credential)</h4>',
+					'<div class="mb-1">',
+						'<textarea id="url-text" class="form-control entityos-text w-100 border border-info"',
+                            ' style="height:180px;" data-scope="learn-ssi"',
+                            ' data-context="data-to-sign"></textarea>',
+                    '</div>',
+                '</div>',
+				'<button type="button" class="btn btn-sm btn-outline-primary text-light entityos-click mb-2"',
+					' data-controller="learn-ssi-create-signature" style="width: 200px;">',
+					'Create Signature',
+				'</button>',
+				'<div id="learn-ssi-create-signature-view"></div>'
+			]);
+
+			learnSSIView.render('#learn-view')
+		}
+	},
+	{
+		name: 'learn-ssi-create-did-doc',
+		code: function ()
+		{
+			const cryptoCurve = eos.get(
+			{
+				scope: 'learn-ssi-create-did',
+				context: 'curve',
+				valueDefault: 'secp256k1'
+			});
+
+			const data = eos.get(
+			{
+				scope: 'learn-ssi'
+			});
+
+			const verificationKeyTypes = {
+				secp256k1: 'EcdsaSecp256k1VerificationKey2019',
+				ed25519: 'Ed25519SignatureAuthentication2018'
+			}
+			
+			const curveSSISpecs = 
+			[
+				{
+					curve: 'secp256k1',
+					keyType: 'EcdsaSecp256k1VerificationKey2019',
+					publicKey:
+					{
+						name: 'publicKeyHex',
+						encoding: 'hex'
+					}
+				},
+				{
+					curve: 'ed25519',
+					keyType: 'Ed25519SignatureAuthentication2018',
+					publicKey:
+					{
+						name: 'publicKeyBase58',
+						encoding: 'base58'
+					}
+				}
+			]
+
+			const curveSSISpec = _.find(curveSSISpecs, function (spec)
+			{
+				return (spec.curve == cryptoCurve)
+			});
+
+			let didDocument = {error: 'Not a valid crypto curve'}
+
+			if (curveSSISpec != undefined)
+			{
+				didDocument = {
+					id: data.did,
+					verificationMethod:
+					[
+						{
+							id: data.did + '#keys-1',
+							type: curveSSISpec.keyType,
+							controller: data.did
+					}],
+					authentication: [{
+						type: curveSSISpec.keyType,
+						publicKey: data.did + '#keys-1'
+					}]
+				}
+
+				_.each(didDocument.verificationMethod, function (method)
+				{
+					method[curveSSISpec.publicKey.name] = data['public-key-' + curveSSISpec.publicKey.encoding];
+				});
+			}
+
+			eos.set(
+			{
+				scope: 'learn-ssi',
+				context: 'did-document',
+				value: didDocument
+			});
+
+			console.log('DID Document:');
+			console.log(JSON.stringify(didDocument, null, 2));
+
+			return didDocument
+		}
+	},
+    {
+		name: 'learn-ssi-create-signature',
+		code: function ()
+		{
+			const data = eos.get(
+			{
+				scope: 'learn-ssi'
+			});
+
+			console.log(data);
+
+			let dataHash = entityos._util.protect.hash({data: data['data-to-sign']}).dataHashed;
+
+			const cryptoCurve = eos.get(
+			{
+				scope: 'learn-ssi-create-did',
+				context: 'curve',
+				valueDefault: 'secp256k1'
+			});
+
+			const ec = new elliptic.ec(cryptoCurve);
+			const keyPair = ec.keyFromPrivate(data['private-key-hex']);
+			const signature = keyPair.sign(dataHash, { canonical: true }); // Use canonical for better compatibility
+
+			eos.set(
+			{
+				scope: 'learn-ssi',
+				context: 'signature',
+				value: signature
+			});
+
+			console.log('Signature:', signature.toDER('hex')); // DER encoding for verification
+
+			let learnSSIView = eos.view();
+
+			learnSSIView.add(
+			[
+				'<div style="background-color:rgba(0,0,0,0.7); border-radius: 6px; padding:16px;" class="w-md-100 mt-2 mb-4">',
+					'<h4 class="fw-bold mb-3 mt-1">Step 5 | ', cryptoCurve, ' Signature of SHA256 Hash of the Data</h4>',
+					'<div class="" style="color:#e8d5cf;">Signature</div>',
+					'<div style="font-family: PT Mono, monospace; font-size: 1rem; color:#baadab; word-break: break-all;" class="mb-1">',
+						signature.toDER('hex'),
+					'</div>',
+                '</div>',
+				'<button type="button" class="btn btn-sm btn-outline-primary text-light entityos-click mb-2"',
+					' data-controller="learn-ssi-verify-signature" style="width: 200px;">',
+					'Verify Signature',
+				'</button>',
+				'<div id="learn-ssi-verify-signature-view"></div>'
+			]);
+
+			learnSSIView.render('#learn-ssi-create-signature-view')
+		}
+	},
+	 {
+		name: 'learn-ssi-verify-signature',
+		code: function ()
+		{
+			const data = eos.get(
+			{
+				scope: 'learn-ssi'
+			});
+
+			console.log(data);
+
+			let dataHashed = entityos._util.protect.hash({data: data['data-to-sign']}).dataHashed;
+
+			const cryptoCurve = eos.get(
+			{
+				scope: 'learn-ssi-create-did',
+				context: 'curve',
+				valueDefault: 'secp256k1'
+			});
+
+			const ec = new elliptic.ec(cryptoCurve);
+
+			 const keyBytes = new Uint8Array(data['public-key-hex'].match(/[\da-f]{2}/gi).map(byte => parseInt(byte, 16)));
+            // Assuming the key format is correct, adjust based on your DER format
+            const publicKey = ec.keyFromPublic(keyBytes, 'hex');
+			const verified = ec.verify(dataHashed, data.signature, publicKey);
+
+			console.log('Verified:', verified);
+
+			let learnSSIView = eos.view();
+
+			learnSSIView.add(
+			[
+				'<div style="background-color:rgba(0,0,0,0.7); border-radius: 6px; padding:16px;" class="w-md-100 mt-2 mb-4">',
+					'<h4 class="fw-bold mb-3 mt-1">Step 6 | Verify Data with Signature & Public Key</h4>',
+					'<div class="" style="color:#e8d5cf;">It will always verify in this learning example.</div>',
+					'<div class="" style="color:#e8d5cf;">If you want to test it not verifying then change the data in Step 4 and then click Verify Signature.</div>',
+
+					'<div style="font-family: PT Mono, monospace; font-size: 1rem; color:#baadab; word-break: break-all;" class="mb-1">',
+						(verified?'Verified':'Not Verified'),
+					'</div>',
+                '</div>',
+			]);
+
+			learnSSIView.render('#learn-ssi-verify-signature-view')
+		}
+	},
+    {
+		name: 'learn-ssi-hex-to-base58',
+		code: function (data)
+		{
+			return eos.invoke('util-convert-hex-to-base58', data);
+		}
+	}
+]);
+
+$(function ()
+{
+	eos.invoke('learn-ssi-init');
+});

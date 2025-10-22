@@ -807,6 +807,98 @@ eos.add(
 		}
 	},
 	{
+		name: 'learn-wallet-send-ada-x',
+		code: async function (param) {
+			console.log('## Sending ADA to Self');
+			try {
+
+				//const { Transaction, TransactionOutput, Value, Address, BigNum } = window.typhonjs;
+				// Retrieve the wallet name
+				const walletName = eos.get({ scope: 'learn', context: 'wallet-name' });
+
+				// Enable the wallet (connect)
+				const wallet = await window.cardano[walletName].enable();
+
+				const utxos = await wallet.getUtxos();
+				const networkId = await wallet.getNetworkId();
+				const changeAddress = await wallet.getChangeAddress();
+
+				// Convert ADA to Lovelace (1 ADA = 1,000,000 Lovelace)
+				const amountADA = 1;
+				const amountLovelace = amountADA * 1000000;
+
+				//const address = Address.from_bytes(Buffer.from(changeAddress, 'hex'));
+
+				//console.log(Address)
+
+				// Get the user's address (used address)
+				const addresses = await wallet.getUsedAddresses();
+				const userAddressHex = addresses[0];
+				const userAddress = typhonjs.utils.getAddressFromHex(userAddressHex).addressBech32;
+
+				// Log the address we're sending ADA to
+				console.log('Sending ADA to address:', userAddress);
+
+				// Fetch UTXOs (unspent transaction outputs) to construct the transaction inputs
+				//const utxos = await wallet.getUtxos();
+				//const utxos = utxosHex.map(utxoHex => typhonjs.CardanoWasm.TransactionUnspentOutput.from_bytes(Buffer.from(utxoHex, "hex")));
+
+				console.log(utxos)
+
+				// Specify how much ADA to send (e.g., 1 ADA = 1,000,000 Lovelace)
+				const amountToSend = 1000000; // 1 ADA in Lovelace
+
+				const outputs = [
+				{
+					address: userAddress,  // sending to own address
+					amount: amountToSend, // sending 1 ADA (1 ADA = 1_000_000 Lovelace)
+				}];
+
+				console.log(outputs)
+
+				let tx = new typhonjs.Transaction();
+
+				console.log(tx)
+
+				
+
+
+				/*
+				// Add the transaction output
+				txBuilder.add_output(txOut);
+
+				// Add inputs from UTXOs
+				utxos.forEach(utxo => {
+					txBuilder.add_input(
+						typhonjs.CardanoWasm.Address.from_bech32(userAddress),
+						utxo.input(),
+						utxo.output().amount()
+					);
+				});
+
+
+
+				// Sign the transaction
+				const signedTx = await wallet.signTx(Buffer.from(unsignedTx.to_bytes()).toString("hex"), true);
+
+				// Submit the signed transaction
+				const txHash = await wallet.submitTx(signedTx);
+
+				// Output the transaction hash to confirm submission
+				console.log('Transaction submitted successfully with hash:', txHash);
+
+				// Display the result in the UI
+				eos.view().add(
+					`<div>Transaction submitted successfully with hash: ${txHash}</div>`
+				).render('#learn-wallet-send-data-view');
+				*/
+
+			} catch (error) {
+				console.error(error);
+			}
+		}
+	},
+	{
 		name: 'learn-wallet-send-ada',
 		code: async function (param)
 		{
@@ -865,6 +957,21 @@ eos.add(
 
 			console.log(inputTransaction)
 
+
+			/*{
+    txId: "d771da555feac5b6376652b284c20b39f7b5aef8ea8e03c927f7f731fed13314",
+    index: 0,
+    amount: new BigNumber(50000000),
+    tokens: [],
+    address: address2,
+  }*/
+
+			//const _receiverAddress = typhonjs.utils.getAddressFromString(receiverAddress.addressBech32);
+
+			//const _senderAddress = new typhonjs.address.BaseAddress(receiverAddress.networkId, receiverAddress._paymentCredential, receiverAddress.stakeCredential);
+
+			//console.log(_senderAddress);
+
 			if (false)
 			{
 				_.each(inputTransactions, function (inputTransaction)
@@ -893,9 +1000,15 @@ eos.add(
 
 			console.log(tx.getInputs())
 
+			/*for (let utxo of utxos)
+			{
+				console.log(utxo)
+				console.log(fromHex(utxo))
+				tx.addInput(fromHex(utxo));
+			}*/
+
 			//Test Octo on Nami
 			receiverAddress = typhonjs.utils.getAddressFromString('addr1qxmzlel8x6sdjae7zc4a776ltealq42t4kvc6c04zv7xazys6d4aytccfpnuwtl4jte0peuq8clf6d0xyd6tw5nt6ydqdl5vdh');
-			
 			// Add outputs
 			tx.addOutput({
 				address: receiverAddress,
@@ -903,7 +1016,7 @@ eos.add(
 			});
 
 			// Optionally set fee (wallet will calculate this)
-			tx.setFee(155381 + 44); // TODO: Need function to calc fees based on protocol parameters.
+			tx.setFee(155381 + 44); // Need function to calc fees based on protocol parameters.
 
 			// Build the transaction
 			//const unsignedTx = tx.buildTransaction();
@@ -941,21 +1054,13 @@ eos.add(
 
 			console.log(signedTx)
 
-			$('#learn-wallet-send-data-view').html(
-				_.join([
-					'<div class="fw-bold mt-2">Sign Transaction to be Submitted</div>',
-					'<div class="text-secondary small">',
-						signedTx,
-					'</div>'
-				], ''))
-
 			//const txHash = await wallet.submitTx(signedTx);
-			//console.log(txHash)
+
+			console.log(txHash)
 		}
 	},
 	{
 		name: 'learn-util-protocol-parameters',
-		todo: 'Make dynamic using https://onchain.api.slfdrvn.io [https://selfdriven.tech/apps/#apis]',
 		code: function (param)
 		{
 			const parameters =

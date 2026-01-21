@@ -89,7 +89,7 @@ eos.add(
 
 			var learnSSIKERIView = eos.view();
 
-			learnSSIView.add(
+			learnSSIKERIView.add(
 			[
 				'<div style="background-color:rgba(0,0,0,0.7); border-radius: 6px; padding:16px;" class="w-md-100 mt-2 mb-4">',
 					'<h4 class="fw-bold mb-3 mt-1">Step 1 | Create ', cryptoCurve, ' Keys</h4>',

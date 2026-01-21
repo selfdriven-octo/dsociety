@@ -42,7 +42,7 @@ eos.add(
         }
     },
 	{
-		name: 'learn-ssi-keri-create-did',
+		name: 'learn-ssi-keri-create-aid',
 		code: function ()
 		{
 			console.log('Step 1 | Create AID.');

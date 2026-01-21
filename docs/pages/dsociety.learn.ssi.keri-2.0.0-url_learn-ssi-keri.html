@@ -86,10 +86,14 @@ permalink: /learn/ssi/keri
             About KERI <i class="fe fe-chevron-down"></i>
         </a>
         <div class="collapse mt-4" id="learn-ssi-info-tech-view">
-            <ul class="d-none nav nav-pills justify-content-center" role="tablist">
+            <ul class="nav nav-pills justify-content-center" role="tablist">
                 <li class="nav-item">
-                    <a class="nav-link active" id="learn-ssi-info-tech-curves" data-toggle="tab" href="#stack"
-                        role="tab" aria-controls="stack" aria-selected="false">Curves</a>
+                    <a class="nav-link active" id="learn-ssi-info-tech-curves" data-toggle="tab" href="#keri-aid"
+                        role="tab" aria-controls="keri-aid" aria-selected="false">AID</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="learn-ssi-info-tech-curves" data-toggle="tab" href="#keri-acdc"
+                        role="tab" aria-controls="keri-aid" aria-selected="false">ACDC</a>
                 </li>
             </ul>
             <div class="tab-content">
@@ -151,11 +155,30 @@ permalink: /learn/ssi/keri
                             widely used in blockchain systems like Bitcoin, Ethereum, and others.
                         </div>
                     </div>
-                    <div class="mt-6 mb-8 px-0">
-                        <a href="https://cardano.build/#ssi" target="_blank" style="font-size: 1rem;"
-                            class="pl-4">
-                            More SSI Dev Resources @ cardano.build <i class="fe fe-external-link"></i>
-                        </a>
+                </div>
+                 <div class="tab-pane fade show" id="learn-ssi-info-tech-curves" role="tabpanel"
+                    aria-labelledby="learn-ssi-info-tech-curves">
+                    <div style="background-color:rgba(0,0,0,0.7); border-radius: 6px; padding:20px; color:#e8d5cf;"
+                        class="w-md-75 mt-6 px-8 pt-6">
+                        <h3 class="d-none fw-bold" style="color:#ff943d;">About ACDCs</h3>
+                        <div>
+                            <div>Authentic Chained Data Containers (ACDC) are a credential format / security model that can secure credentials and build chains of authenticity/authority.</div>
+                            <ul>
+                                <li>W3C VC is the conceptual model.</li>
+                                <li>ACDC is an implementation that makes provenance + chaining extremely natural.</li>
+                                <li>The vLEI ecosystem explicitly uses ACDC built on KERI.</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <div>Components</div>
+                            <ul>
+                                <li>Credential = ACDC</li>
+                                <li>Issuer = AID</li>
+                                <li>Chains of Authority = ACDC graph / DAG</li>
+                                <li>Verification uses KEL(s), witnesses, receipts</li>
+                            </ul>
+                        </div>
+                       
                     </div>
                 </div>
             </div>

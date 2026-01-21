@@ -114,7 +114,7 @@ eos.add(
 			console.log('KERI AID:', ssiKERIAID);
 
 			const ssiKERIAIDDoc = {
-				aid,
+				aid: ssiKERIAID,
 				suite: "Ed25519",
 				cesr: {
 					publicKeyCode: "B",

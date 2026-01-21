@@ -1,0 +1,173 @@
+---
+layout: learn
+title: dSociety Learn SSI KERI
+permalink: /learn/ssi/keri
+---
+
+<!--
+    A learn-by-example of SSI KERI AID
+
+    A KERI AID is a self-certifying identifier used in KERI (Key Event Receipt Infrastructure).
+	- AID stands for Autonomic Identifier
+	- It’s basically the root identity for an entity (person, organisation, device, agent) in KERI
+	- It’s not “an account” on some registry — it’s an identifier you can generate yourself and prove control over cryptographically
+
+    AID is an identifier derived from cryptographic material, typically:
+	- a public key (or multiple keys)
+    - plus rules about how key rotation / thresholds work
+
+    So the identifier is bound to the keys, and the control of the identifier is proven by signing key events.
+
+    KERI AIDs are designed to solve classic SSI problems:
+    - no central registry required
+    - key rotation without losing identity (huge)
+    - portable identity (move across systems)
+    - witnessing / multi-party validation without needing a blockchain
+    - supports strong governance semantics like:
+	    - multi-sig thresholds
+	    - delegation
+	    - key compromise recovery patterns
+
+    # Create AID
+        - Download Private Key
+        - Public Key
+    
+    Thank you,
+    Turlia.
+
+    We have an opportunity
+    to descentralise
+    & rehumanise our society
+
+-->
+
+    <div class="pt-6">
+        <a class="lift"
+            style="padding-left: 4px; font-family:system-ui !important; color:#ff943d !important; font-size:1.6rem; text-align:left;"
+            href="/">
+            dSociety</a> <span class="text-muted-80" style="font-size:1.6rem; font-family:system-ui !important;font-weight: 100;">|</span> <a class="lift"
+            style="font-family:system-ui !important; color:#ff943d !important; font-size:1.6rem; text-align:left;"
+            href="/learn">
+            Learn
+        </a>
+    </div>
+
+    <div class="pt-0" style="color:#ff943d; font-size:4rem; line-height:1;">
+        Self-Sovereign Identity (SSI) - Key Event Receipt Infrastructure (KERI) 
+    </div>
+
+    <div class="pt-6">
+        <button id="learn-ssi-create-did" type="button" class="btn btn-outline-primary entityos-click"
+            data-controller="learn-ssi-keri-create-aid" style="width:200px;">
+            Create AID
+        </button>
+    </div>
+
+	<div class="form-group mt-3 mb-0" style="margin-left: 20px;">
+		<div class="radio-inline radio-lg text-secondary">
+			<input type="radio" class="entityos-check" checked="checked" id="learn-ssi-keri-create-aid-curve-ed25519" name="learn-ssi-keri-create-aid-curve" value="ed25519" data-id="ed25519" data-scope="learn-ssi-keri-create-aid" data-context="curve">
+			Ed25519
+		</div>
+	</div>
+
+    <div id="learn-ssi-keri-view">
+    </div>
+
+    <div id="learn-view" class="pt-4" style="width:100%;">
+    </div>
+
+    <div class="pt-6" style="width:100%;">
+        <a data-toggle="collapse" href="#learn-ssi-info-tech-view" class="btn btn-outline-primary text-dark"
+            style="width:200px;">
+            The Curves <i class="fe fe-chevron-down"></i>
+        </a>
+        <div class="collapse mt-4" id="learn-ssi-info-tech-view">
+            <ul class="d-none nav nav-pills justify-content-center" role="tablist">
+                <li class="nav-item">
+                    <a class="nav-link active" id="learn-ssi-info-tech-curves" data-toggle="tab" href="#stack"
+                        role="tab" aria-controls="stack" aria-selected="false">Curves</a>
+                </li>
+            </ul>
+            <div class="tab-content">
+                <div class="tab-pane fade show active" id="learn-ssi-info-tech-curves" role="tabpanel"
+                    aria-labelledby="learn-ssi-info-tech-curves">
+                    <div style="background-color:rgba(0,0,0,0.7); border-radius: 6px; padding:20px; color:#e8d5cf;"
+                        class="w-md-75 mt-6 px-8 pt-6">
+                        <h3 class="d-none fw-bold" style="color:#ff943d;">About AIDs</h3>
+                        <div>
+                            <div>A KERI AID is a self-certifying identifier used in KERI (Key Event Receipt Infrastructure).</div>
+                            <ul>
+                                <li>AID stands for Autonomic Identifier</li>
+                                <li>It's basically the root identity for an entity (person, organisation, device, agent) in KERI</li>
+                                <li>It's not “an account” on some registry — it's an identifier you can generate yourself and prove control over cryptographically</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <div>AID is an identifier derived from cryptographic material, typically:</div>
+                            <ul>
+                                <li>a public key (or multiple keys)</li>
+                                <li>plus rules about how key rotation / thresholds work</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <div>AID is an identifier derived from cryptographic material, typically:</div>
+                            <ul>
+                                <li>a public key (or multiple keys)</li>
+                                <li>plus rules about how key rotation / thresholds work</li>
+                            </ul>
+                            <div>So the identifier is bound to the keys, and the control of the identifier is proven by signing key events.</div>
+                        </div>
+                        <div>
+                            <div>KERI AIDs are designed to solve classic SSI problems:</div>
+                            <ul>
+                                <li>no central registry required</li>
+                                <li>key rotation without losing identity (huge)</li>
+                                <li>portable identity (move across systems)</li>
+                                <li>witnessing / multi-party validation without needing a blockchain</li>
+                                <li>supports strong governance semantics like:
+                                    <ul>
+                                        <li>multi-sig thresholds</li>
+                                        <li>delegation</li>
+                                        <li>key compromise recovery patterns</li>
+                                    </ul>
+                            </ul>
+                        </div>
+                        <div class="mt-2">
+                            The cryptographic algorithms used for AIDs often rely on elliptic curve cryptography, which
+                            offers good security with relatively small keys, making it well suited to the constrained
+                            environments where AIDs are often used.
+                        </div>
+                        <div class="mt-2">
+                           Curve algorithm for AIDs...
+                        </div>
+                        <div class="mt-2">
+                            <h4 class="fw-bold  mb-0 mt-3" style="color:#ff943d;">Ed25519</h4>
+                            This is a specific elliptic curve signature scheme using a variant of Schnorr's
+                            signature and Twisted Edwards curves. It offers high security and performance, and it's
+                            widely used in blockchain systems like Bitcoin, Ethereum, and others.
+                        </div>
+                    </div>
+                    <div class="mt-6 mb-8 px-8">
+                        <a href="https://cardano.build/#ssi" target="_blank" style="font-size: 1rem;"
+                            class="pl-4">
+                            More SSI Dev Resources @ cardano.build <i class="fe fe-external-link"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="pt-6 text-secondary w-md-75">
+        <div class="text-danger fw-bold"><i class="fe fe-alert-triangle text-danger"></i> The functionality on this page is for learning only.</div>
+        <div>In a real application you would not generate and display the private keys in the browser without careful security considerations.</div>
+    </div>
+
+	<div class="text-muted-80 mt-4 mb-6 text-leftr">
+		<a class="btn btn-dark btn-pill shadow lift p-1" href="https://skillzeb.io/template-explorer/resources-dsociety-learn-ssi" target="_blank">
+			<img src="/images/skillzeb-kit-horizontal.png" class="text-secondary me-1" style="max-height: 1.4rem !important;"><i class="fe fe-external-link me-1"></i>
+		</a>
+	</div>
+
+    <script type="module" src="/js/dsociety.entityos.learn.ssi.keri-2.0.0.js"></script>
+    <script type="module" src="/js/dsociety.util.ssi.keri-2.0.0.js"></script>

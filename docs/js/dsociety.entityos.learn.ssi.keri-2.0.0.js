@@ -175,5 +175,5 @@ eos.add(
 
 $(function ()
 {
-	eos.invoke('learn-ssi-init');
+	eos.invoke('learn-ssi-keri-init');
 });

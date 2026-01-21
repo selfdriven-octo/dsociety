@@ -1,4 +1,4 @@
-// Minimal helper for generating a KERI non-transferable AID from an
+// !!! REFERENCE ONLY -- Minimal helper for generating a KERI non-transferable AID from an
 // Ed25519 keypair using TweetNaCl.
 //
 // AID format (non-transferable):

@@ -20,23 +20,38 @@ eos.add(
 		}
 	},
     {
-		name: 'learn-ssi-keri-create-aid',
-		code: function ()
+		name: 'learn-ssi-keri-util-bytes-to-hex',
+		code: function (bytes)
 		{
-            
+            return Array.from(bytes)
+				.map(b => b.toString(16).padStart(2, "0"))
+				.join("");
         }
     },
 	{
-		name: 'XXX-learn-ssi-create-did',
+		name: 'learn-ssi-keri-util-bytes-to-base64-url',
+		code: function (bytes)
+		{
+            const bin = String.fromCharCode.apply(null, bytes);
+			const b64 =
+				typeof btoa !== "undefined"
+				? btoa(bin)
+				: Buffer.from(bin, "binary").toString("base64");
+
+			return b64.replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+        }
+    },
+	{
+		name: 'learn-ssi-keri-create-did',
 		code: function ()
 		{
-			console.log('Step 1 | Create DID.');
+			console.log('Step 1 | Create AID.');
 
 			const cryptoCurve = eos.get(
 			{
-				scope: 'learn-ssi-create-did',
+				scope: 'learn-ssi-keri-create-aid',
 				context: 'curve',
-				valueDefault: 'secp256k1'
+				valueDefault: 'ed25519'
 			});
 
 			console.log(cryptoCurve + ' Key Pair:')
@@ -44,10 +59,18 @@ eos.add(
 			const ec = new elliptic.ec(cryptoCurve);
 			const key = ec.genKeyPair();
 
+			/* 2. Encodings
+			const pubHex = bytesToHex(kp.publicKey);
+			const pubB64 = bytesToBase64Url(kp.publicKey);
+			const secHex = bytesToHex(kp.secretKey);
+			*/
+
+			const publicKeyBase64 = eos.invoke('learn-ssi-keri-util-bytes-to-base64-url', key.getPublic('bytes'));
 			const publicKey = key.getPublic('hex');
 			const privateKey = key.getPrivate('hex');
 
 			console.log('Public Key (Hex):', publicKey);
+			console.log('Public Key (Base64):', publicKeyBase64);
 			console.log('Private Key (Hex):', privateKey);
 
 			eos.set(
@@ -57,25 +80,14 @@ eos.add(
 				value: publicKey
 			});
 
-			const publicKeyBase58 = entityos._util.controller.invoke('learn-ssi-hex-to-base58', publicKey);
-
-			console.log('Public Key (Base58):', publicKeyBase58);
-
 			eos.set(
 			{
 				scope: 'learn-ssi',
-				context: 'public-key-base58',
-				value: publicKeyBase58
+				context: 'public-key-base64',
+				value: publicKeyBase64
 			});
 
-			eos.set(
-			{
-				scope: 'learn-ssi',
-				context: 'private-key-hex',
-				value: privateKey
-			});
-
-			var learnSSIView = eos.view();
+			var learnSSIKERIView = eos.view();
 
 			learnSSIView.add(
 			[
@@ -85,9 +97,9 @@ eos.add(
 					'<div style="font-family: PT Mono, monospace; font-size: 1rem; color:#baadab; word-break: break-all;" class="mb-1">',
 						publicKey,
 					'</div>',
-					'<div class="" style="color:#e8d5cf;">Public Key (Base58)</div>',
+					'<div class="" style="color:#e8d5cf;">Public Key (Base64)</div>',
 					'<div style="font-family: PT Mono, monospace; font-size: 1rem; color:#baadab; word-break: break-all;" class="mb-1">',
-						publicKeyBase58,
+						publicKeyBase64,
 					'</div>',
 					'<div class="mt-4" style="color:#e8d5cf;">Private Key (Hex)</div>',
 					'<div style="font-family: PT Mono, monospace; font-size: 1rem; color:#baadab; word-break: break-all;" class="mb-1">',
@@ -96,84 +108,50 @@ eos.add(
                 '</div>'
 			]);
 
-            console.log('Step 2 | Create hash the public key as DID - HEX|64.');
+            console.log('Step 2 | Create public key as AID - Base64.');
 
-            let publicKeyHashSHA256 = entityos._util.protect.hash({data: publicKey}).dataHashed;
+          	const ssiKERIAID = "B" + publicKeyBase64;
+			console.log('KERI AID:', ssiKERIAID);
 
-			let publicKeyHashBlake2b256 = entityos._util.protect.hash({data: publicKey, hashType: 'blake2b'}).dataHashed;
+			const ssiKERIAIDDoc = {
+				aid,
+				suite: "Ed25519",
+				cesr: {
+					publicKeyCode: "B",
+					explanation:
+					'AID = ' + ssiKERIAID
+				},
+				publicKey: {
+					hex: publicKey,
+					base64url: publicKeyBase64
+				},
+				createdAt: new Date().toISOString()
+			};
 
-			console.log('Public Key Hash (SHA256):', publicKeyHashSHA256);
-			console.log('Public Key Hash (Blake2b-256):', publicKeyHashBlake2b256);
-			
-			eos.set(
-			{
-				scope: 'learn-ssi',
-				context: 'public-key-hex-hash',
-				value: publicKeyHashSHA256
-			});
+			console.log('KERI AID Doc:', ssiKERIAIDDoc);
 
-			eos.set(
-			{
-				scope: 'learn-ssi',
-				context: 'public-key-hex-hash-blake2b',
-				value: publicKeyHashBlake2b256
-			});
+			const ssiKERIAIDDocFormatted = JSON.stringify(ssiKERIAIDDoc, null, 2)
 
-            learnSSIView.add(
-			[
-				'<div style="background-color:rgba(0,0,0,0.7); border-radius: 6px; padding:16px;" class="w-md-100 mt-4 mb-4">',
-					'<h4 class="fw-bold mb-3 mt-1">Step 2 | Hash Public Key</h4>',
-					'<div class="" style="color:#e8d5cf;">Public Key Hash (SHA256)</div>',
-					'<div style="font-family: PT Mono, monospace; font-size: 1rem; color:#baadab; word-break: break-all;" class="mb-1">',
-						publicKeyHashSHA256,
-					'</div>',
-					'<div class="" style="color:#e8d5cf;">Public Key Hash (Blake2b-256)</div>',
-					'<div style="font-family: PT Mono, monospace; font-size: 1rem; color:#baadab; word-break: break-all;" class="mb-1">',
-						publicKeyHashBlake2b256,
-					'</div>',
-                '</div>'
-			]);
-
-			const didCurveIndexes = 
-			{
-				secp256k1: '1',
-				ed25519: '2'
-			}
-
-			const did = 'did:dsociety:' + didCurveIndexes[cryptoCurve] + ':1:' + publicKeyHashSHA256;
-
-            console.log('DID:', did);
-
-			eos.set(
-			{
-				scope: 'learn-ssi',
-				context: 'did',
-				value: did
-			});
-
-			const didDocument = eos.invoke('learn-ssi-create-did-doc');
-			const didDocumentFormatted = JSON.stringify(didDocument, null, 2)
-
-            learnSSIView.add(
+            learnSSIKERIView.add(
 			[
 				'<div style="background-color:rgba(0,0,0,0.7); border-radius: 6px; padding:16px;" class="w-md-100 mt-4 mb-4">',
 					'<h4 class="fw-bold mb-3 mt-1">Step 3 | DID based on dSociety SSI Method Specification</h4>',
-					'<div class="" style="color:#e8d5cf;">Decentralised ID (DID) | Public Key | SHA256 Hash | Hex</div>',
+					'<div class="" style="color:#e8d5cf;">Automic ID (AID) | Public Key | Base64</div>',
 					'<div style="font-family: PT Mono, monospace; font-size: 1rem; color:#baadab; word-break: break-all;" class="mb-1">',
-						did,
+						ssiKERIAID,
 					'</div>',
-					'<div class="mt-2" style="color:#e8d5cf;">DID Document</div>',
+					'<div class="mt-2" style="color:#e8d5cf;">AID Document</div>',
 					'<div style="font-family: PT Mono, monospace; font-size: 1rem; color:#baadab; word-break: break-all;" class="mb-1">',
 						'<pre>',
-						didDocumentFormatted,
+						ssiKERIAIDDocFormatted,
 						'</pre>',
 					'</div>',
                 '</div>'
 			]);
 
-            // Create proof - hash the message and then sign/encrypt with secp
+            // Create proof - hash the message and then sign/encrypt with aid
 
-            learnSSIView.add(
+            learnSSIKERIView.add(
 			[
 				'<div style="background-color:rgba(0,0,0,0.7); border-radius: 6px; padding:16px;" class="w-md-100 mt-2 mb-4">',
 					'<h4 class="fw-bold mb-3 mt-1">Step 4 | Hash & Sign Data (e.g. Verifiable Credential)</h4>',
@@ -190,7 +168,7 @@ eos.add(
 				'<div id="learn-ssi-create-signature-view"></div>'
 			]);
 
-			learnSSIView.render('#learn-view')
+			learnSSIKERIView.render('#learn-view')
 		}
 	}
 ]);

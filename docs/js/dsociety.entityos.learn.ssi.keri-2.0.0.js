@@ -172,7 +172,7 @@ eos.add(
 		}
 	},
 	{
-		name: 'learn-ssi-create-signature',
+		name: 'learn-ssi-keri-create-signature',
 		code: function ()
 		{
 			const data = eos.get(

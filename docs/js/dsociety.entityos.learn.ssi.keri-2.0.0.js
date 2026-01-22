@@ -821,7 +821,7 @@ eos.add(
 				}
 			});
 
-			const keriRoot = state.controller.current.keyPair;
+			const keriRoot = state.controller.current;
 
 			const ec = new elliptic.ec(cryptoCurve);
 			const keyPairDelegate = ec.genKeyPair();
@@ -846,7 +846,7 @@ eos.add(
 			const dataToSign = strToBytes(keriDelegationEvent.d);
 
 			//const keyPair = ec.keyFromPrivate(data['private-key-hex']);
-			const keriDelegationEventSignature = keriRoot.sign(dataToSign, { canonical: true });
+			const keriDelegationEventSignature = keriRoot.keyPair.sign(dataToSign, { canonical: true });
 			// Use canonical for better compatibility
 
 			keriDelegationEvent.sig =
@@ -880,7 +880,6 @@ eos.add(
 			{
 				scope: 'learn-ssi-keri',
 				context: 'keri-delegation-event',
-				name: seq,
 				value: keriDelegationEvent
 			});
 

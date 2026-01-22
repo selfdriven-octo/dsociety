@@ -180,7 +180,7 @@ eos.add(
 					'Create Signature',
 				'</button>',
 				'<div id="learn-ssi-keri-create-signature-view"></div>',
-				'<div class="mt-4">In console run entityos._util.controller.invoke("learn-ssi-keri-create-event-[inception,rotation,delegation")</div>'
+				'<div class="mt-4">In console run entityos._util.controller.invoke("learn-ssi-keri-create-event-[inception,rotation,delegation]")</div>'
 			]);
 
 			learnSSIKERIView.render('#learn-view')
@@ -915,6 +915,24 @@ eos.add(
 
 			learnSSIView.render('#learn-ssi-keri-create-signature-view')
 			*/
+		}
+	},
+	{
+		name: 'learn-ssi-keri-create-acdc',
+		code: function ()
+		{
+			//https://claude.ai/chat/94479fa2-81d9-4bc9-b090-c8aa75c109ed
+
+			// issuerAID, subjectAID, schema, attributes, privateKey
+
+			const acdc = {
+				v: 'ACDC10JSON000000_',  // Version string
+				d: '',                    // SAID - computed below
+				i: issuerAID,            // Issuer AID
+				s: schema,               // Schema SAID
+				a: attributes,           // Attribute block
+				dt: new Date().toISOString() // Issuance datetime
+			};
 		}
 	}
 ]);

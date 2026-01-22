@@ -230,7 +230,7 @@ eos.add(
 						signature.toDER('hex'),
 					'</div>',
                 '</div>',
-				'<button type="button" class="btn btn-sm btn-outline-primary text-light entityos-click mb-2"',
+				'<button type="button" class="d-none btn btn-sm btn-outline-primary text-light entityos-click mb-2"',
 					' data-controller="learn-ssi-keri-verify-signature" style="width: 200px;">',
 					'Verify Signature',
 				'</button>',

@@ -846,14 +846,16 @@ eos.add(
 			const dataToSign = strToBytes(keriDelegationEvent.d);
 
 			//const keyPair = ec.keyFromPrivate(data['private-key-hex']);
-			const keriDelegationEventSignature = keriRoot.keyPair.sign(dataToSign, { canonical: true });
+			const keriDelegationEventSignatureBytes = keriRoot.keyPair.sign(dataToSign, { canonical: true });
 			// Use canonical for better compatibility
+
+			const keriDelegationEventSignatureBase64 = eos.invoke('learn-ssi-keri-util-bytes-to-base64-url', keriDelegationEventSignatureBytes)
 
 			keriDelegationEvent.sig =
 			{
 				alg: "Ed25519",
 				by: keriRoot.aid,
-				s: keriDelegationEventSignature
+				s: keriDelegationEventSignatureBase64
 			}
 
 			// populate d: later

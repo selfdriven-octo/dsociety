@@ -9,6 +9,8 @@ const eos = new EntityOS();
 // Code is free to use.
 // It is only provided as to aid learning .
 
+// SAID = Self-Addressing ID
+
 eos.add(
 [
 	{
@@ -921,18 +923,115 @@ eos.add(
 		name: 'learn-ssi-keri-create-acdc',
 		code: function ()
 		{
-			//https://claude.ai/chat/94479fa2-81d9-4bc9-b090-c8aa75c109ed
+			const state = eos.get(
+			{
+				scope: 'learn-ssi-keri',
+				context: 'state',
+				valueDefault: {}
+			});
 
 			// issuerAID, subjectAID, schema, attributes, privateKey
 
-			const acdc = {
-				v: 'ACDC10JSON000000_',  // Version string
-				d: '',                    // SAID - computed below
-				i: issuerAID,            // Issuer AID
-				s: schema,               // Schema SAID
-				a: attributes,           // Attribute block
-				dt: new Date().toISOString() // Issuance datetime
+			const uuid = eos.invoke('learn-ssi-keri-util-bytes-to-base64-url', crypto.getRandomValues(new Uint8Array(16)));
+
+			const keriIssuer = state.controller.current;
+
+			function createSchema(schemaContent)
+			{
+				const schema = {
+					v: 'ACDC10JSON000000_',
+					d: '',
+					t: 'sch',              // Schema type
+					...schemaContent
+				};
+				
+				schema.d = computeSAID(schema);
+				
+				// Update size
+				const schemaJson = JSON.stringify(schema);
+				const size = Buffer.byteLength(schemaJson, 'utf8');
+				const sizeHex = size.toString(16).padStart(6, '0');
+				schema.v = 'ACDC10JSON' + sizeHex + '_';
+				
+				schema.d = computeSAID(schema);
+				
+				return schema;
+			}
+
+			// TO DO - example using skillzeb.io
+
+			const keriSchema = createSchema(
+			{
+				title: 'Digital Badge',
+				description: 'A credential for completing a course',
+				properties:
+				{
+					name: { type: 'string' },
+					course: { type: 'string' },
+					completionDate: { type: 'string', format: 'date' },
+					score: { type: 'number', minimum: 0, maximum: 100 }
+				},
+				required: ['name', 'course', 'completionDate']
+			});
+
+			// Subject
+			const ec = new elliptic.ec(cryptoCurve);
+			const keyPairDelegate = ec.genKeyPair();
+			const aidSubject = 'B' + eos.invoke('learn-ssi-keri-util-bytes-to-base64-url', keyPairDelegate.getPublic('bytes'));
+
+
+			// Build in insertion order (important conceptually).  [oai_citation:6‡trustoverip.github.io](https://trustoverip.github.io/kswg-acdc-specification/)
+			let acdc = {};
+			acdc.v = "ACDC10JSON000000_"; // demo version string shape
+			acdc.t = "acm";              // ACDC message type (common)	
+			acdc.u = uuid;             // UUID salty nonce (optional field)  [oai_citation:7‡trustoverip.github.io](https://trustoverip.github.io/kswg-acdc-specification/)
+			acdc.i = keriIssuer.aid;          // Issuer AID  [oai_citation:8‡trustoverip.github.io](https://trustoverip.github.io/kswg-acdc-specification/)
+			acdc.s = keriSchema.d;         // Schema SAID  [oai_citation:9‡trustoverip.github.io](https://trustoverip.github.io/kswg-acdc-specification/)
+			acdc.d = "";                 // SAID inserted below
+
+			// Attributes block (a) can be block or SAID. We use block.  [oai_citation:10‡trustoverip.github.io](https://trustoverip.github.io/kswg-acdc-specification/)
+			acdc.a = {
+				// reserved 'i' may appear nested as an identifier (issuee/subject)  [oai_citation:11‡trustoverip.github.io](https://trustoverip.github.io/kswg-acdc-specification/)
+				i: aidSubject,
+				role: "member",
+				level: "gold",
+				issuedAt: new Date().toISOString().slice(0, 10)
 			};
+
+			acdc.d = computeSAID(acdc);
+
+			const acdcJson = JSON.stringify(acdc);
+			const size = Buffer.byteLength(acdcJson, 'utf8');
+			const sizeHex = size.toString(16).padStart(6, '0');
+			acdc.v = 'ACDC10JSON' + sizeHex + '_';
+			
+			// Recompute SAID with correct version
+			acdc.d = computeSAID(acdc);
+
+			const dataToSign = strToBytes(keriDelegationEvent.d);
+
+			const keriACDCSignatureBytes = keriIssuer.keyPair.sign(dataToSign, { canonical: true });
+			// Use canonical for better compatibility
+
+			const keriACDCSignatureBase64 = eos.invoke('learn-ssi-keri-util-bytes-to-base64-url', keriACDCSignatureBytes)
+
+			acdc.sig =
+			{
+				alg: "Ed25519",
+				by: keriIssuer.aid,
+				s: keriACDCSignatureBase64
+			}
+
+			console.log('KERI ACDC:', acdc);
+
+			state.acdc = acdc;
+
+			eos.set(
+			{
+				scope: 'learn-ssi-keri',
+				context: 'state',
+				value: state
+			});
 		}
 	}
 ]);

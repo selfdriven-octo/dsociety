@@ -287,7 +287,7 @@ eos.add(
 		}
 	},
 	{
-		name: 'learn-ssi-keri-create-record-inception',
+		name: 'XXX-learn-ssi-keri-create-record-inception',
 		code: function ()
 		{
 			// ---- UTILS
@@ -499,27 +499,30 @@ eos.add(
 
 			const state =
 			{
-				controller: null, // { current: {pub, sec}, next: {pub, sec} }
-				kel: []           // [{ t, s, k, n, p?, d }]
+				controller: null, 
+				kel: []
 			};
+      
+			const aidCurrent = 'B' + eos.invoke('learn-ssi-keri-util-bytes-to-base64-url', keyPairCurrent.getPublic('bytes'));
+			const aidNext = 'B' + eos.invoke('learn-ssi-keri-util-bytes-to-base64-url', keyPairNext.getPublic('bytes'));
+
+      		// digest for next key commitment
+      		const aidNextBytes = strToBytes(aidNext);
+			const aidNextDigest = sha256Base64Url(aidNextBytes);
 
 			state.controller =
 			{ 
-				current: keyPairCurrent,
-				next: keyPairNext
+				current:
+				{
+					keyPair: keyPairCurrent,
+					aid: aidCurrent
+				},
+				next:
+				{
+					keyPair: keyPairNext,
+					aid: aidNext
+				}
 			};
-
-			//const controller = state.controller;
-      
-			const publicKeyBase64Current = 'B' + eos.invoke('learn-ssi-keri-util-bytes-to-base64-url', keyPairCurrent.getPublic('bytes'));
-			const publicKeyBase64Next = 'B' + eos.invoke('learn-ssi-keri-util-bytes-to-base64-url', keyPairCurrent.getPublic('bytes'));
-
-      		//const currQb64 = ed25519PubToQb64(controller.current.publicKey);
-      		//const nextQb64 = ed25519PubToQb64(controller.next.publicKey);
-
-      		// digest for next key commitment
-      		const nextBytes = strToBytes(publicKeyBase64Next);
-			const nextDigest = sha256Base64Url(nextBytes);
 
 			let keriInceptionEvent =
 			{
@@ -527,9 +530,9 @@ eos.add(
 				t: "icp",
 				s: "0",
 				kt: "1",   // key threshold
-				k: [publicKeyBase64Current],
+				k: [aidCurrent],
 				nt: "1",   // next key threshold
-				n: nextDigest,
+				n: aidNextDigest,
 				p: "",     // prior event SAID (none for inception)
 				dt: new Date().toISOString()
 			};
@@ -655,27 +658,31 @@ eos.add(
 				}
 			});
 
-			const keyPairCurrent = state.controller.next;
+			const keyPairCurrent = state.controller.next.publicKey;
+			const aidCurrent = state.controller.next.aid;
+      
+			const aidNext = 'B' + eos.invoke('learn-ssi-keri-util-bytes-to-base64-url', keyPairNext.getPublic('bytes'));
 
 			state.controller =
 			{ 
-				current: keyPairCurrent,
-				next: keyPairNext
+				current:
+				{
+					keyPair: keyPairCurrent,
+					aid: aidCurrent
+				},
+				next:
+				{
+					keyPair: keyPairNext,
+					aid: aidNext
+				}
 			};
 
-			//const controller = state.controller;
-      
-			const publicKeyBase64Current = 'B' + eos.invoke('learn-ssi-keri-util-bytes-to-base64-url', keyPairCurrent.getPublic('bytes'));
-			const publicKeyBase64Next = 'B' + eos.invoke('learn-ssi-keri-util-bytes-to-base64-url', keyPairCurrent.getPublic('bytes'));
-
-      		//const currQb64 = ed25519PubToQb64(controller.current.publicKey);
-      		//const nextQb64 = ed25519PubToQb64(controller.next.publicKey);
-
       		// digest for next key commitment
-      		const nextBytes = strToBytes(publicKeyBase64Next);
-			const nextDigest = sha256Base64Url(nextBytes);
+      		const aidNextBytes = strToBytes(aidNext);
+			const aidNextDigest = sha256Base64Url(aidNextBytes);
 
-			const seq = String(state.kel.length)
+			const seq = String(state.kel.length);
+			const prevEv = state.kel[state.kel.length - 1];
 
 			let keriRotationEvent =
 			{
@@ -683,10 +690,10 @@ eos.add(
 				t: "rot",
 				s: seq,
 				kt: "1",   // key threshold
-				k: [publicKeyBase64Current],
+				k: [aidCurrent],
 				nt: "1",   // next key threshold
-				n: nextDigest,
-				p: "",     // prior event SAID (none for inception)
+				n: aidNextDigest,
+				p: prevEv.d,     // prior event SAID (none for inception)
 				dt: new Date().toISOString()
 			};
 
@@ -707,6 +714,175 @@ eos.add(
 			});
 
 			state.kel.push(keriRotationEvent);
+
+			eos.set(
+			{
+				scope: 'learn-ssi-keri',
+				context: 'state',
+				value: state
+			});
+
+			console.log(state)
+
+			/*let learnSSIView = eos.view();
+
+			learnSSIView.add(
+			[
+				'<div style="background-color:rgba(0,0,0,0.7); border-radius: 6px; padding:16px;" class="w-md-100 mt-2 mb-4">',
+					'<h4 class="fw-bold mb-3 mt-1">Step 5 | ', cryptoCurve, ' Private Key Signature of SHA256 Hash of the Data</h4>',
+					'<div class="" style="color:#e8d5cf;">KERI Inception Event</div>',
+					'<div style="font-family: PT Mono, monospace; font-size: 1rem; color:#baadab; word-break: break-all;" class="mb-1">',
+						keriInceptionEvent,
+					'</div>',
+                '</div>',
+				'<button type="button" class="btn btn-sm btn-outline-primary text-light entityos-click mb-2"',
+					' data-controller="learn-ssi-keri-verify-signature" style="width: 200px;">',
+					'Rotate',
+				'</button>',
+				'<div id="learn-ssi-keri-verify-signature-view"></div>'
+			]);
+
+			learnSSIView.render('#learn-ssi-keri-create-signature-view')
+			*/
+		}
+	},
+	{
+		name: 'learn-ssi-keri-create-event-delegation',
+		code: function ()
+		{
+			// ---- UTILS
+
+			function strToBytes(str)
+			{
+				return new TextEncoder().encode(str);
+			}
+
+			function sha256Base64Url(bytes)
+			{
+				// bytes: Uint8Array
+				const wordArray = CryptoJS.lib.WordArray.create(bytes);
+				const hash = CryptoJS.SHA256(wordArray);                 // WordArray
+				const b64 = CryptoJS.enc.Base64.stringify(hash);         // base64
+
+				// convert base64 -> base64url
+				return b64.replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
+			}
+
+			// Canonicalise event: stable key ordering, drop 'd' when computing SAID
+			function canonicaliseEvent(ev)
+			{
+				// Deep copy without 'd'
+				const clone = JSON.parse(JSON.stringify(ev));
+				delete clone.d;
+
+				function sortKeys(obj)
+				{
+					if (Array.isArray(obj)) {
+					return obj.map(sortKeys);
+					} else if (obj && typeof obj === "object") {
+					const sorted = {};
+					Object.keys(obj).sort().forEach(k => {
+						sorted[k] = sortKeys(obj[k]);
+					});
+					return sorted;
+					}
+					return obj;
+				}
+
+				const sorted = sortKeys(clone);
+				return JSON.stringify(sorted);
+			}
+
+			// ------ MAIN
+
+			const data = eos.get(
+			{
+				scope: 'learn-ssi-keri'
+			});
+
+			console.log(data);
+
+			const cryptoCurve = eos.get(
+			{
+				scope: 'learn-ssi-keri-create-aid',
+				context: 'curve',
+				valueDefault: 'ed25519'
+			});
+
+			// root controller
+
+			const state = eos.get(
+			{
+				scope: 'learn-ssi-keri',
+				context: 'state',
+				valueDefault: {
+					controller: null,
+					kel: []
+				}
+			});
+
+			const keriRoot = state.controller.current;
+
+			const ec = new elliptic.ec(cryptoCurve);
+			const keyPairDelegate = ec.genKeyPair();
+			const aidDelegate = 'B' + eos.invoke('learn-ssi-keri-util-bytes-to-base64-url', keyPairDelegate.getPublic('bytes'));
+
+			const role = 'issuer';
+
+			const keriDelegationEvent = {
+				v: "KERI10JSON0000fb_",
+				t: "del",
+				dt: new Date().toISOString(),
+				root: keriRoot.aid,
+				delegate: aidDelegate,
+				role: role
+			};
+
+			const keriDelegationEventCanon = canonicaliseEvent(keriDelegationEvent);
+			const keriDelegationEventCanonBytes = strToBytes(keriDelegationEventCanon);
+
+			keriDelegationEvent.d = 'E' + sha256Base64Url(keriDelegationEventCanonBytes);
+
+			const dataToSign = strToBytes(keriDelegationEvent.d);
+
+			//const keyPair = ec.keyFromPrivate(data['private-key-hex']);
+			const keriDelegationEventSignature = keriRoot.sign(dataToSign, { canonical: true });
+			// Use canonical for better compatibility
+
+			keriDelegationEvent.sig =
+			{
+				alg: "Ed25519",
+				by: keriRoot.aid,
+				s: keriDelegationEventSignature
+			}
+
+			// populate d: later
+			// s: populated later (base64url signature)
+
+			state.delegation = {
+				root: keriRoot,
+				delegate:
+				{
+					keyPair: keyPairDelegate,
+					aid: aidDelegate
+				},
+				event:
+				{
+					obj: keriDelegationEvent,
+					said: keriDelegationEvent.d,
+					signature: keriDelegationEventSignature
+				}    
+			};
+
+			console.log('KERI Delegation Event:', keriDelegationEvent);
+
+			eos.set(
+			{
+				scope: 'learn-ssi-keri',
+				context: 'keri-delegation-event',
+				name: seq,
+				value: keriDelegationEvent
+			});
 
 			eos.set(
 			{

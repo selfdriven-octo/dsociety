@@ -887,7 +887,7 @@ eos.add(
 			};
 
 			acdc.d = computeSAID(acdc);
-			
+
 			const acdcJson = JSON.stringify(acdc);
 			const size = new TextEncoder().encode(acdcJson).length;
 			const sizeHex = size.toString(16).padStart(6, '0');
@@ -896,7 +896,7 @@ eos.add(
 			// Recompute SAID with correct version
 			acdc.d = computeSAID(acdc);
 
-			const dataToSign = strToBytes(keriDelegationEvent.d);
+			const dataToSign = strToBytes(acdc.d);
 
 			const keriACDCSignatureBytes = keriIssuer.keyPair.sign(dataToSign, { canonical: true });
 			// Use canonical for better compatibility

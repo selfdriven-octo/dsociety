@@ -855,9 +855,17 @@ eos.add(
 			});
 
 			// Subject
+
+			const cryptoCurve = eos.get(
+			{
+				scope: 'learn-ssi-keri-create-aid',
+				context: 'curve',
+				valueDefault: 'ed25519'
+			});
+
 			const ec = new elliptic.ec(cryptoCurve);
-			const keyPairDelegate = ec.genKeyPair();
-			const aidSubject = 'B' + eos.invoke('learn-ssi-keri-util-bytes-to-base64-url', keyPairDelegate.getPublic('bytes'));
+			const keyPairSubject = ec.genKeyPair();
+			const aidSubject = 'B' + eos.invoke('learn-ssi-keri-util-bytes-to-base64-url', keyPairSubject.getPublic('bytes'));
 
 
 			// Build in insertion order (important conceptually).  [oai_citation:6‡trustoverip.github.io](https://trustoverip.github.io/kswg-acdc-specification/)

@@ -821,7 +821,7 @@ eos.add(
 				}
 			});
 
-			const keriRoot = state.controller.current;
+			const keriRoot = state.controller.current.keyPair;
 
 			const ec = new elliptic.ec(cryptoCurve);
 			const keyPairDelegate = ec.genKeyPair();

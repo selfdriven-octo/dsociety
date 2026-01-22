@@ -63,16 +63,3 @@ function canonicaliseEvent(ev) {
 	return JSON.stringify(sorted);
 }
 
-function computeSAID(obj) {
-	// Create a copy with 'd' field as placeholder
-	const copy = { ...obj, d: '' };
-
-	// Serialize in canonical form (sorted keys)
-	const canonical = JSON.stringify(copy, Object.keys(copy).sort());
-
-	// Hash with SHA-256
-	const hash = crypto.createHash('sha256').update(canonical).digest();
-
-	// Return as base64url with SAID prefix
-	return 'E' + hash.toString('base64url');
-}

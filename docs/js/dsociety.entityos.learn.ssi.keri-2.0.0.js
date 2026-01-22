@@ -76,6 +76,13 @@ eos.add(
 			eos.set(
 			{
 				scope: 'learn-ssi',
+				context: 'private-key-hex',
+				value: privateKey
+			});
+
+			eos.set(
+			{
+				scope: 'learn-ssi',
 				context: 'public-key-hex',
 				value: publicKey
 			});
@@ -225,7 +232,7 @@ eos.add(
 			learnSSIView.render('#learn-ssi-keri-create-signature-view')
 		}
 	},
-	 {
+	{
 		name: 'learn-ssi-keri-verify-signature',
 		code: function ()
 		{
@@ -271,7 +278,61 @@ eos.add(
 
 			learnSSIView.render('#learn-ssi-keri-verify-signature-view')
 		}
-	}
+	},
+	{
+		name: 'learn-ssi-keri-create-inception',
+		code: function ()
+		{
+			const data = eos.get(
+			{
+				scope: 'learn-ssi-keri'
+			});
+
+			console.log(data);
+
+			let dataHash = entityos._util.protect.hash({data: data['data-to-sign']}).dataHashed;
+
+			const cryptoCurve = eos.get(
+			{
+				scope: 'learn-ssi-keri-create-aid',
+				context: 'curve',
+				valueDefault: 'ed25519'
+			});
+
+			const ec = new elliptic.ec(cryptoCurve);
+			const keyPair = ec.keyFromPrivate(data['private-key-hex']);
+			const signature = keyPair.sign(dataHash, { canonical: true }); // Use canonical for better compatibility
+
+			eos.set(
+			{
+				scope: 'learn-ssi-keri',
+				context: 'signature',
+				value: signature
+			});
+
+			console.log('Signature:', signature.toDER('hex')); // DER encoding for verification
+
+			let learnSSIView = eos.view();
+
+			learnSSIView.add(
+			[
+				'<div style="background-color:rgba(0,0,0,0.7); border-radius: 6px; padding:16px;" class="w-md-100 mt-2 mb-4">',
+					'<h4 class="fw-bold mb-3 mt-1">Step 5 | ', cryptoCurve, ' Private Key Signature of SHA256 Hash of the Data</h4>',
+					'<div class="" style="color:#e8d5cf;">Signature</div>',
+					'<div style="font-family: PT Mono, monospace; font-size: 1rem; color:#baadab; word-break: break-all;" class="mb-1">',
+						signature.toDER('hex'),
+					'</div>',
+                '</div>',
+				'<button type="button" class="btn btn-sm btn-outline-primary text-light entityos-click mb-2"',
+					' data-controller="learn-ssi-keri-verify-signature" style="width: 200px;">',
+					'Verify Signature',
+				'</button>',
+				'<div id="learn-ssi-keri-verify-signature-view"></div>'
+			]);
+
+			learnSSIView.render('#learn-ssi-keri-create-signature-view')
+		}
+	},
 ]);
 
 $(function ()

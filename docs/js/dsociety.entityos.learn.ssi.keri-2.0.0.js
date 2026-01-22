@@ -690,8 +690,8 @@ eos.add(
 				dt: new Date().toISOString()
 			};
 
-			const keriInceptionEventCanon = canonicaliseEvent(keriInceptionEvent);
-			const bytes = strToBytes(keriInceptionEventCanon);
+			const keriRotationEventCanon = canonicaliseEvent(keriRotationEvent);
+			const bytes = strToBytes(keriRotationEventCanon);
 
 			// Simplified SAID: "E" + base64url(sha256(canonical_event_without_d))
 			keriRotationEvent.d = 'E' + sha256Base64Url(bytes);

@@ -421,7 +421,7 @@ eos.add(
 		}
 	},
 	{
-		name: 'learn-ssi-keri-create-record-inception',
+		name: 'learn-ssi-keri-create-event-inception',
 		code: function ()
 		{
 			// ---- UTILS
@@ -540,7 +540,182 @@ eos.add(
 			// Simplified SAID: "E" + base64url(sha256(canonical_event_without_d))
 			keriInceptionEvent.d = 'E' + sha256Base64Url(bytes);
 
-			console.log('KERI Inception Event:', keriInceptionEvent)
+			console.log('KERI Inception Event:', keriInceptionEvent);
+
+			eos.set(
+			{
+				scope: 'learn-ssi-keri',
+				context: 'keri-inception-event',
+				value: keriInceptionEvent
+			});
+
+			state.kel.push(keriInceptionEvent);
+
+			eos.set(
+			{
+				scope: 'learn-ssi-keri',
+				context: 'state',
+				value: state
+			});
+
+			/*let learnSSIView = eos.view();
+
+			learnSSIView.add(
+			[
+				'<div style="background-color:rgba(0,0,0,0.7); border-radius: 6px; padding:16px;" class="w-md-100 mt-2 mb-4">',
+					'<h4 class="fw-bold mb-3 mt-1">Step 5 | ', cryptoCurve, ' Private Key Signature of SHA256 Hash of the Data</h4>',
+					'<div class="" style="color:#e8d5cf;">KERI Inception Event</div>',
+					'<div style="font-family: PT Mono, monospace; font-size: 1rem; color:#baadab; word-break: break-all;" class="mb-1">',
+						keriInceptionEvent,
+					'</div>',
+                '</div>',
+				'<button type="button" class="btn btn-sm btn-outline-primary text-light entityos-click mb-2"',
+					' data-controller="learn-ssi-keri-verify-signature" style="width: 200px;">',
+					'Rotate',
+				'</button>',
+				'<div id="learn-ssi-keri-verify-signature-view"></div>'
+			]);
+
+			learnSSIView.render('#learn-ssi-keri-create-signature-view')
+			*/
+		}
+	},
+	{
+		name: 'learn-ssi-keri-create-event-rotation',
+		code: function ()
+		{
+			// ---- UTILS
+
+			function strToBytes(str)
+			{
+				return new TextEncoder().encode(str);
+				}
+
+			function sha256Base64Url(bytes)
+			{
+				// bytes: Uint8Array
+				const wordArray = CryptoJS.lib.WordArray.create(bytes);
+				const hash = CryptoJS.SHA256(wordArray);                 // WordArray
+				const b64 = CryptoJS.enc.Base64.stringify(hash);         // base64
+
+				// convert base64 -> base64url
+				return b64.replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
+			}
+
+			// Canonicalise event: stable key ordering, drop 'd' when computing SAID
+			function canonicaliseEvent(ev)
+			{
+				// Deep copy without 'd'
+				const clone = JSON.parse(JSON.stringify(ev));
+				delete clone.d;
+
+				function sortKeys(obj) {
+					if (Array.isArray(obj)) {
+					return obj.map(sortKeys);
+					} else if (obj && typeof obj === "object") {
+					const sorted = {};
+					Object.keys(obj).sort().forEach(k => {
+						sorted[k] = sortKeys(obj[k]);
+					});
+					return sorted;
+					}
+					return obj;
+				}
+
+				const sorted = sortKeys(clone);
+				return JSON.stringify(sorted);
+			}
+
+			// ------ MAIN
+
+			const data = eos.get(
+			{
+				scope: 'learn-ssi-keri'
+			});
+
+			console.log(data);
+
+			const cryptoCurve = eos.get(
+			{
+				scope: 'learn-ssi-keri-create-aid',
+				context: 'curve',
+				valueDefault: 'ed25519'
+			});
+
+			const ec = new elliptic.ec(cryptoCurve);
+			const keyPairNext = ec.genKeyPair();
+
+			const state = eos.get(
+			{
+				scope: 'learn-ssi-keri',
+				context: 'state',
+				valueDefault: {
+					controller: null, // { current: {pub, sec}, next: {pub, sec} }
+					kel: []           // [{ t, s, k, n, p?, d }]
+				}
+			});
+
+			const keyPairCurrent = state.controller.next;
+
+			state.controller =
+			{ 
+				current: keyPairCurrent,
+				next: keyPairNext
+			};
+
+			//const controller = state.controller;
+      
+			const publicKeyBase64Current = 'B' + eos.invoke('learn-ssi-keri-util-bytes-to-base64-url', keyPairCurrent.getPublic('bytes'));
+			const publicKeyBase64Next = 'B' + eos.invoke('learn-ssi-keri-util-bytes-to-base64-url', keyPairCurrent.getPublic('bytes'));
+
+      		//const currQb64 = ed25519PubToQb64(controller.current.publicKey);
+      		//const nextQb64 = ed25519PubToQb64(controller.next.publicKey);
+
+      		// digest for next key commitment
+      		const nextBytes = strToBytes(publicKeyBase64Next);
+			const nextDigest = sha256Base64Url(nextBytes);
+
+			const seq = String(state.kel.length)
+
+			let keriRotationEvent =
+			{
+				v: "KERI10JSON0000fb_", // toy version string
+				t: "rot",
+				s: seq,
+				kt: "1",   // key threshold
+				k: [publicKeyBase64Current],
+				nt: "1",   // next key threshold
+				n: nextDigest,
+				p: "",     // prior event SAID (none for inception)
+				dt: new Date().toISOString()
+			};
+
+			const keriInceptionEventCanon = canonicaliseEvent(keriInceptionEvent);
+			const bytes = strToBytes(keriInceptionEventCanon);
+
+			// Simplified SAID: "E" + base64url(sha256(canonical_event_without_d))
+			keriRotationEvent.d = 'E' + sha256Base64Url(bytes);
+
+			console.log('KERI Rotation Event:', keriRotationEvent);
+
+			eos.set(
+			{
+				scope: 'learn-ssi-keri',
+				context: 'keri-rotation-event',
+				name: seq,
+				value: keriRotationEvent
+			});
+
+			state.kel.push(keriRotationEvent);
+
+			eos.set(
+			{
+				scope: 'learn-ssi-keri',
+				context: 'state',
+				value: state
+			});
+
+			console.log(state)
 
 			/*let learnSSIView = eos.view();
 

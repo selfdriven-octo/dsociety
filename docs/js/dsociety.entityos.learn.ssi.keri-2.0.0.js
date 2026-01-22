@@ -887,9 +887,9 @@ eos.add(
 			};
 
 			acdc.d = computeSAID(acdc);
-
+			
 			const acdcJson = JSON.stringify(acdc);
-			const size = Buffer.byteLength(acdcJson, 'utf8');
+			const size = new TextEncoder().encode(acdcJson).length;
 			const sizeHex = size.toString(16).padStart(6, '0');
 			acdc.v = 'ACDC10JSON' + sizeHex + '_';
 			

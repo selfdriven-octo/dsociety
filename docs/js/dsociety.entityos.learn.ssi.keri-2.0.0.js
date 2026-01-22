@@ -59,6 +59,13 @@ eos.add(
 			const ec = new elliptic.ec(cryptoCurve);
 			const key = ec.genKeyPair();
 
+			eos.set(
+			{
+				scope: 'learn-ssi-keri',
+				context: 'key-pair',
+				value: Key
+			});
+
 			/* 2. Encodings
 			const pubHex = bytesToHex(kp.publicKey);
 			const pubB64 = bytesToBase64Url(kp.publicKey);
@@ -75,21 +82,21 @@ eos.add(
 
 			eos.set(
 			{
-				scope: 'learn-ssi',
+				scope: 'learn-ssi-keri',
 				context: 'private-key-hex',
 				value: privateKey
 			});
 
 			eos.set(
 			{
-				scope: 'learn-ssi',
+				scope: 'learn-ssi-keri',
 				context: 'public-key-hex',
 				value: publicKey
 			});
 
 			eos.set(
 			{
-				scope: 'learn-ssi',
+				scope: 'learn-ssi-keri',
 				context: 'public-key-base64',
 				value: publicKeyBase64
 			});
@@ -280,9 +287,67 @@ eos.add(
 		}
 	},
 	{
-		name: 'learn-ssi-keri-create-inception',
+		name: 'learn-ssi-keri-create-inception-record',
 		code: function ()
 		{
+			// ---- UTILS
+
+			function strToBytes(str)
+			{
+				return new TextEncoder().encode(str);
+				}
+
+			function sha256Base64Url(bytes)
+			{
+				// bytes: Uint8Array
+				const wordArray = CryptoJS.lib.WordArray.create(bytes);
+				const hash = CryptoJS.SHA256(wordArray);                 // WordArray
+				const b64 = CryptoJS.enc.Base64.stringify(hash);         // base64
+
+				// convert base64 -> base64url
+				return b64.replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
+			}
+
+			// Simple CESR-ish non-transferable Ed25519 public key prefix ("B")
+			function ed25519PubToQb64(pubBytes) {
+				const b64u = bytesToBase64Url(pubBytes);
+				return "B" + b64u;
+			}
+
+			// Canonicalise event: stable key ordering, drop 'd' when computing SAID
+			function canonicaliseEvent(ev)
+			{
+				// Deep copy without 'd'
+				const clone = JSON.parse(JSON.stringify(ev));
+				delete clone.d;
+
+				function sortKeys(obj) {
+					if (Array.isArray(obj)) {
+					return obj.map(sortKeys);
+					} else if (obj && typeof obj === "object") {
+					const sorted = {};
+					Object.keys(obj).sort().forEach(k => {
+						sorted[k] = sortKeys(obj[k]);
+					});
+					return sorted;
+					}
+					return obj;
+				}
+
+				const sorted = sortKeys(clone);
+				return JSON.stringify(sorted);
+			}
+
+			// Simplified SAID: "E" + base64url(sha256(canonical_event_without_d))
+			function computeSaid(ev)
+			{
+				const canon = canonicaliseEvent(ev);
+				const bytes = strToBytes(canon);
+				return sha256Base64Url(bytes).then(digest => "E" + digest);
+			}
+
+			// ------ MAIN
+
 			const data = eos.get(
 			{
 				scope: 'learn-ssi-keri'
@@ -290,47 +355,78 @@ eos.add(
 
 			console.log(data);
 
-			let dataHash = entityos._util.protect.hash({data: data['data-to-sign']}).dataHashed;
-
-			const cryptoCurve = eos.get(
+			const keyPairCurrent = eos.get(
 			{
-				scope: 'learn-ssi-keri-create-aid',
-				context: 'curve',
-				valueDefault: 'ed25519'
+				scope: 'learn-ssi-keri',
+				context: 'key-pair'
 			});
 
 			const ec = new elliptic.ec(cryptoCurve);
-			const keyPair = ec.keyFromPrivate(data['private-key-hex']);
-			const signature = keyPair.sign(dataHash, { canonical: true }); // Use canonical for better compatibility
+			const keyPairNext = ec.genKeyPair();
 
-			eos.set(
+			const state =
 			{
-				scope: 'learn-ssi-keri',
-				context: 'signature',
-				value: signature
-			});
+				controller: null, // { current: {pub, sec}, next: {pub, sec} }
+				kel: []           // [{ t, s, k, n, p?, d }]
+			};
 
-			console.log('Signature:', signature.toDER('hex')); // DER encoding for verification
+			state.controller =
+			{ 
+				current: keyPairCurrent,
+				next: keyPairNext
+			};
 
-			let learnSSIView = eos.view();
+			const controller = state.controller;
+      
+      		const currQb64 = ed25519PubToQb64(controller.current.publicKey);
+      		const nextQb64 = ed25519PubToQb64(controller.next.publicKey);
+
+      		// digest for next key commitment
+      		const nextBytes = strToBytes(nextQb64);
+
+			const nextDigest = sha256Base64Url(nextBytes);
+
+			let keriInceptionEvent =
+			{
+				v: "KERI10JSON0000fb_", // toy version string
+				t: "icp",
+				s: "0",
+				kt: "1",   // key threshold
+				k: [currQb64],
+				nt: "1",   // next key threshold
+				n: nextDigest,
+				p: "",     // prior event SAID (none for inception)
+				dt: new Date().toISOString()
+			};
+
+			const keriInceptionEventCanon = canonicaliseEvent(keriInceptionEvent);
+			const bytes = strToBytes(keriInceptionEventCanon);
+
+			//SAID
+			keriInceptionEvent.d = 'E' + sha256Base64Url(bytes);
+
+			console.log('KERI Inception Event:', keriInceptionEvent)
+
+			/*let learnSSIView = eos.view();
 
 			learnSSIView.add(
 			[
 				'<div style="background-color:rgba(0,0,0,0.7); border-radius: 6px; padding:16px;" class="w-md-100 mt-2 mb-4">',
 					'<h4 class="fw-bold mb-3 mt-1">Step 5 | ', cryptoCurve, ' Private Key Signature of SHA256 Hash of the Data</h4>',
-					'<div class="" style="color:#e8d5cf;">Signature</div>',
+					'<div class="" style="color:#e8d5cf;">KERI Inception Event</div>',
 					'<div style="font-family: PT Mono, monospace; font-size: 1rem; color:#baadab; word-break: break-all;" class="mb-1">',
-						signature.toDER('hex'),
+						keriInceptionEvent,
 					'</div>',
                 '</div>',
 				'<button type="button" class="btn btn-sm btn-outline-primary text-light entityos-click mb-2"',
 					' data-controller="learn-ssi-keri-verify-signature" style="width: 200px;">',
-					'Verify Signature',
+					'Rotate',
 				'</button>',
 				'<div id="learn-ssi-keri-verify-signature-view"></div>'
 			]);
 
 			learnSSIView.render('#learn-ssi-keri-create-signature-view')
+			*/
 		}
 	},
 ]);

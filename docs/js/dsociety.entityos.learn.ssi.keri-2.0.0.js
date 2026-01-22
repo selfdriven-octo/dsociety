@@ -829,7 +829,7 @@ eos.add(
 				
 				// Update size
 				const schemaJson = JSON.stringify(schema);
-				const size = Buffer.byteLength(schemaJson, 'utf8');
+				const size = new TextEncoder().encode(schemaJson).length;
 				const sizeHex = size.toString(16).padStart(6, '0');
 				schema.v = 'ACDC10JSON' + sizeHex + '_';
 				

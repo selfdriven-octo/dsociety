@@ -509,13 +509,16 @@ eos.add(
 				next: keyPairNext
 			};
 
-			const controller = state.controller;
+			//const controller = state.controller;
       
-      		const currQb64 = ed25519PubToQb64(controller.current.publicKey);
-      		const nextQb64 = ed25519PubToQb64(controller.next.publicKey);
+			const publicKeyBase64Current = 'B' + eos.invoke('learn-ssi-keri-util-bytes-to-base64-url', keyPairCurrent.getPublic('bytes'));
+			const publicKeyBase64Next = 'B' + eos.invoke('learn-ssi-keri-util-bytes-to-base64-url', keyPairCurrent.getPublic('bytes'));
+
+      		//const currQb64 = ed25519PubToQb64(controller.current.publicKey);
+      		//const nextQb64 = ed25519PubToQb64(controller.next.publicKey);
 
       		// digest for next key commitment
-      		const nextBytes = strToBytes(nextQb64);
+      		const nextBytes = strToBytes(publicKeyBase64Next);
 			const nextDigest = sha256Base64Url(nextBytes);
 
 			let keriInceptionEvent =
@@ -524,7 +527,7 @@ eos.add(
 				t: "icp",
 				s: "0",
 				kt: "1",   // key threshold
-				k: [currQb64],
+				k: [publicKeyBase64Current],
 				nt: "1",   // next key threshold
 				n: nextDigest,
 				p: "",     // prior event SAID (none for inception)

@@ -179,7 +179,8 @@ eos.add(
 					' data-controller="learn-ssi-keri-create-signature" style="width: 200px;">',
 					'Create Signature',
 				'</button>',
-				'<div id="learn-ssi-keri-create-signature-view"></div>'
+				'<div id="learn-ssi-keri-create-signature-view"></div>',
+				'<div class="mt-4">In console run entityos._util.controller.invoke("learn-ssi-keri-create-event-[inception,rotation,delegation")</div>'
 			]);
 
 			learnSSIKERIView.render('#learn-view')
@@ -872,7 +873,7 @@ eos.add(
 				{
 					obj: keriDelegationEvent,
 					said: keriDelegationEvent.d,
-					signature: keriDelegationEventSignature
+					signature: keriDelegationEventSignatureBase64
 				}    
 			};
 

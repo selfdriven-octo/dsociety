@@ -149,7 +149,7 @@ eos.add(
             learnSSIKERIView.add(
 			[
 				'<div style="background-color:rgba(0,0,0,0.7); border-radius: 6px; padding:16px;" class="w-md-100 mt-4 mb-4">',
-					'<h4 class="fw-bold mb-3 mt-1">Step 3 | DID based on dSociety SSI Method Specification</h4>',
+					'<h4 class="fw-bold mb-3 mt-1">Step 2 | DID based on dSociety SSI Method Specification</h4>',
 					'<div class="" style="color:#e8d5cf;">Autonomic ID (AID) | Public Key | Base64</div>',
 					'<div style="font-family: PT Mono, monospace; font-size: 1rem; color:#baadab; word-break: break-all;" class="mb-1">',
 						ssiKERIAID,
@@ -168,7 +168,7 @@ eos.add(
             learnSSIKERIView.add(
 			[
 				'<div style="background-color:rgba(0,0,0,0.7); border-radius: 6px; padding:16px;" class="w-md-100 mt-2 mb-4">',
-					'<h4 class="fw-bold mb-3 mt-1">Step 4 | Hash & Sign Data (e.g. Verifiable Credential)</h4>',
+					'<h4 class="fw-bold mb-3 mt-1">Step 3 | Hash & Sign Data (e.g. Verifiable Credential)</h4>',
 					'<div class="mb-1">',
 						'<textarea id="url-text" class="form-control entityos-text w-100 border border-info"',
                             ' style="height:180px;" data-scope="learn-ssi-keri"',
@@ -223,7 +223,7 @@ eos.add(
 			learnSSIView.add(
 			[
 				'<div style="background-color:rgba(0,0,0,0.7); border-radius: 6px; padding:16px;" class="w-md-100 mt-2 mb-4">',
-					'<h4 class="fw-bold mb-3 mt-1">Step 5 | ', cryptoCurve, ' Private Key Signature of SHA256 Hash of the Data</h4>',
+					'<h4 class="fw-bold mb-3 mt-1">Step 4 | ', cryptoCurve, ' Private Key Signature of SHA256 Hash of the Data</h4>',
 					'<div class="" style="color:#e8d5cf;">Signature</div>',
 					'<div style="font-family: PT Mono, monospace; font-size: 1rem; color:#baadab; word-break: break-all;" class="mb-1">',
 						signature.toDER('hex'),
@@ -485,6 +485,13 @@ eos.add(
 			{
 				scope: 'learn-ssi-keri',
 				context: 'key-pair'
+			});
+
+			const cryptoCurve = eos.get(
+			{
+				scope: 'learn-ssi-keri-create-aid',
+				context: 'curve',
+				valueDefault: 'ed25519'
 			});
 
 			const ec = new elliptic.ec(cryptoCurve);

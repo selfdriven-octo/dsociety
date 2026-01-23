@@ -167,7 +167,7 @@ eos.add(
 
 			learnSSIKERIView.add(
 			[
-				'<div style="background-color:rgba(0,0,0,0.7); border-radius: 6px; padding:16px;" class="w-md-100 mt-2 mb-4">',
+				'<div style="d-none background-color:rgba(0,0,0,0.7); border-radius: 6px; padding:16px;" class="w-md-100 mt-2 mb-4">',
 					'<h4 class="fw-bold mb-3 mt-1">Step 3 | Inception | Key Event Ledger</h4>',
 					'<div class="d-none mb-1">',
 						'<textarea id="url-text" class="form-control entityos-text w-100 border border-info"',
@@ -459,14 +459,14 @@ eos.add(
 			learnSSIView.add(
 			[
 				'<div style="background-color:rgba(0,0,0,0.7); border-radius: 6px; padding:16px;" class="w-md-100 mt-2 mb-4">',
-					'<h4 class="fw-bold mb-3 mt-1">Step 5 | ', cryptoCurve, ' Private Key Signature of SHA256 Hash of the Data</h4>',
-					'<div class="" style="color:#e8d5cf;">KERI Inception Event</div>',
+					'<h4 class="fw-bold mb-3 mt-1">Step 3 | Inception Event</h4>',
+					'<div class="" style="color:#e8d5cf;">KERI Inception Event for Key Event Ledger</div>',
 					'<div style="font-family: PT Mono, monospace; font-size: 1rem; color:#baadab; word-break: break-all;" class="mb-1">',
 						keriInceptionEventFormatted,
 					'</div>',
                 '</div>',
 				'<button type="button" class="btn btn-sm btn-outline-primary text-light entityos-click mb-2"',
-					' data-controller="learn-ssi-keri-create-event-rotation-view" style="width: 200px;">',
+					' data-controller="learn-ssi-keri-create-event-rotation" style="width: 200px;">',
 					'Rotate',
 				'</button>',
 				'<div id="learn-ssi-keri-create-event-rotation-view"></div>'
@@ -623,15 +623,15 @@ eos.add(
 			learnSSIView.add(
 			[
 				'<div style="background-color:rgba(0,0,0,0.7); border-radius: 6px; padding:16px;" class="w-md-100 mt-2 mb-4">',
-					'<h4 class="fw-bold mb-3 mt-1">Step 6 | Rotation </h4>',
-					'<div class="" style="color:#e8d5cf;">KERI Rotation Event</div>',
+					'<h4 class="fw-bold mb-3 mt-1">Step 4 | Rotation Event </h4>',
+					'<div class="" style="color:#e8d5cf;">KERI Rotation Event for the Key Event Ledger</div>',
 					'<div style="font-family: PT Mono, monospace; font-size: 1rem; color:#baadab; word-break: break-all;" class="mb-1">',
 						keriRotationEventFormatted,
 					'</div>',
                 '</div>',
 				'<button type="button" class="btn btn-sm btn-outline-primary text-light entityos-click mb-2"',
-					' data-controller="learn-ssi-keri-create-event-rotation-view" style="width: 200px;">',
-					'Rotate',
+					' data-controller="learn-ssi-keri-create-acdc" style="width: 200px;">',
+					'Create ACDC',
 				'</button>',
 				'<div id="learn-ssi-keri-create-acdc-view"></div>'
 			]);

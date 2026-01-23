@@ -167,16 +167,8 @@ eos.add(
 
 			learnSSIKERIView.add(
 			[
-				'<div style="d-none background-color:rgba(0,0,0,0.7); border-radius: 6px; padding:16px;" class="w-md-100 mt-2 mb-4">',
-					'<h4 class="d-none fw-bold mb-3 mt-1">Step 3 | Inception | Key Event Ledger</h4>',
-					'<div class="d-none mb-1">',
-						'<textarea id="url-text" class="form-control entityos-text w-100 border border-info"',
-                            ' style="height:180px;" data-scope="learn-ssi-keri"',
-                            ' data-context="data-to-sign"></textarea>',
-                    '</div>',
-                '</div>',
 				'<button type="button" class="btn btn-sm btn-outline-primary text-light entityos-click mb-2"',
-					' data-controller="learn-ssi-keri-create-event-inception" style="width: 200px;">',
+					' data-controller="learn-ssi-keri-create-event-inception" style="width: 300px;">',
 					'Create Inception Event',
 				'</button>',
 				'<div id="learn-ssi-keri-create-event-inception-view"></div>'
@@ -466,8 +458,8 @@ eos.add(
 					'</div>',
                 '</div>',
 				'<button type="button" class="btn btn-sm btn-outline-primary text-light entityos-click mb-2"',
-					' data-controller="learn-ssi-keri-create-event-rotation" style="width: 200px;">',
-					'Rotate',
+					' data-controller="learn-ssi-keri-create-event-rotation" style="width: 300px;">',
+					'Create Rotate Event',
 				'</button>',
 				'<div id="learn-ssi-keri-create-event-rotation-view"></div>'
 			]);
@@ -794,14 +786,14 @@ eos.add(
 			learnSSIView.add(
 			[
 				'<div style="background-color:rgba(0,0,0,0.7); border-radius: 6px; padding:16px;" class="w-md-100 mt-2 mb-4">',
-					'<h4 class="fw-bold mb-3 mt-1">Step 4 | Delegation Event </h4>',
+					'<h4 class="fw-bold mb-3 mt-1">Step 5 | Delegation Event </h4>',
 					'<div class="" style="color:#e8d5cf;">KERI Delegation Event for the Key Event Ledger</div>',
 					'<div style="font-family: PT Mono, monospace; font-size: 1rem; color:#baadab; word-break: break-all;" class="mb-1">',
 						keriDelegationEventFormatted,
 					'</div>',
                 '</div>',
 				'<button type="button" class="btn btn-sm btn-outline-primary text-light entityos-click mb-2"',
-					' data-controller="learn-ssi-keri-create-acdc" style="width: 200px;">',
+					' data-controller="learn-ssi-keri-create-acdc" style="width: 300px;">',
 					'Create ACDC',
 				'</button>',
 				'<div id="learn-ssi-keri-create-acdc-view"></div>'
@@ -966,7 +958,7 @@ eos.add(
 				'<div id="learn-ssi-keri-xxx-view"></div>'
 			]);
 
-			learnSSIView.render('#learn-ssi-keri-create-event-acdc-view');
+			learnSSIView.render('#learn-ssi-keri-create-acdc-view');
 		}
 	}
 ]);

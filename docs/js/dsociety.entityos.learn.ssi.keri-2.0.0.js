@@ -168,7 +168,7 @@ eos.add(
 			learnSSIKERIView.add(
 			[
 				'<div style="d-none background-color:rgba(0,0,0,0.7); border-radius: 6px; padding:16px;" class="w-md-100 mt-2 mb-4">',
-					'<h4 class="fw-bold mb-3 mt-1">Step 3 | Inception | Key Event Ledger</h4>',
+					'<h4 class="d-none fw-bold mb-3 mt-1">Step 3 | Inception | Key Event Ledger</h4>',
 					'<div class="d-none mb-1">',
 						'<textarea id="url-text" class="form-control entityos-text w-100 border border-info"',
                             ' style="height:180px;" data-scope="learn-ssi-keri"',
@@ -550,7 +550,7 @@ eos.add(
 				}
 			});
 
-			const keyPairCurrent = state.controller.next.publicKey;
+			const keyPairCurrent = state.controller.next.keyPair;
 			const aidCurrent = state.controller.next.aid;
       
 			const aidNext = 'B' + eos.invoke('learn-ssi-keri-util-bytes-to-base64-url', keyPairNext.getPublic('bytes'));
@@ -630,10 +630,10 @@ eos.add(
 					'</div>',
                 '</div>',
 				'<button type="button" class="btn btn-sm btn-outline-primary text-light entityos-click mb-2"',
-					' data-controller="learn-ssi-keri-create-acdc" style="width: 200px;">',
-					'Create ACDC',
+					' data-controller="learn-ssi-keri-create-event-delegation" style="width: 300px;">',
+					'Create Delegation Event',
 				'</button>',
-				'<div id="learn-ssi-keri-create-acdc-view"></div>'
+				'<div id="learn-ssi-keri-create-event-delegation-view"></div>'
 			]);
 
 			learnSSIView.render('#learn-ssi-keri-create-event-rotation-view');
@@ -787,26 +787,27 @@ eos.add(
 
 			console.log(state)
 
-			/*let learnSSIView = eos.view();
+			const keriDelegationEventFormatted = JSON.stringify(keriDelegationEvent, null, 2)
+
+			let learnSSIView = eos.view();
 
 			learnSSIView.add(
 			[
 				'<div style="background-color:rgba(0,0,0,0.7); border-radius: 6px; padding:16px;" class="w-md-100 mt-2 mb-4">',
-					'<h4 class="fw-bold mb-3 mt-1">Step 5 | ', cryptoCurve, ' Private Key Signature of SHA256 Hash of the Data</h4>',
-					'<div class="" style="color:#e8d5cf;">KERI Inception Event</div>',
+					'<h4 class="fw-bold mb-3 mt-1">Step 4 | Delegation Event </h4>',
+					'<div class="" style="color:#e8d5cf;">KERI Delegation Event for the Key Event Ledger</div>',
 					'<div style="font-family: PT Mono, monospace; font-size: 1rem; color:#baadab; word-break: break-all;" class="mb-1">',
-						keriInceptionEvent,
+						keriDelegationEventFormatted,
 					'</div>',
                 '</div>',
 				'<button type="button" class="btn btn-sm btn-outline-primary text-light entityos-click mb-2"',
-					' data-controller="learn-ssi-keri-verify-signature" style="width: 200px;">',
-					'Rotate',
+					' data-controller="learn-ssi-keri-create-acdc" style="width: 200px;">',
+					'Create ACDC',
 				'</button>',
-				'<div id="learn-ssi-keri-verify-signature-view"></div>'
+				'<div id="learn-ssi-keri-create-acdc-view"></div>'
 			]);
 
-			learnSSIView.render('#learn-ssi-keri-create-signature-view')
-			*/
+			learnSSIView.render('#learn-ssi-keri-create-event-delegation-view');
 		}
 	},
 	{
@@ -952,7 +953,7 @@ eos.add(
 			learnSSIView.add(
 			[
 				'<div style="background-color:rgba(0,0,0,0.7); border-radius: 6px; padding:16px;" class="w-md-100 mt-2 mb-4">',
-					'<h4 class="fw-bold mb-3 mt-1">Step 7 | Authentic Chained Data Container (ACDC)</h4>',
+					'<h4 class="fw-bold mb-3 mt-1">Step 5 | Authentic Chained Data Container (ACDC)</h4>',
 					'<div class="" style="color:#e8d5cf;">KERI ACDC</div>',
 					'<div style="font-family: PT Mono, monospace; font-size: 1rem; color:#baadab; word-break: break-all;" class="mb-1">',
 						acdcFormatted,
